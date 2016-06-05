@@ -10,13 +10,16 @@
 #import <UIKit/UIKit.h>
 #define kScreenHeight ([UIScreen mainScreen].bounds.size.height)
 #define kScreenWidth ([UIScreen mainScreen].bounds.size.width)
+#define kScanEara CGRectMake((kScreenWidth - 200)/2, (kScreenHeight-64- 200)/2, 200, 200)
 @interface JNSacnTool ()<AVCaptureMetadataOutputObjectsDelegate>
 
-@property (nonatomic, strong) AVCaptureSession *session;
+@property (nonatomic, strong) AVCaptureSession           *session;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *layer;
 
-@property (nonatomic, strong) AVCaptureDeviceInput *deviceInput;
-@property (nonatomic, strong) AVCaptureMetadataOutput *output;
+@property (nonatomic, strong) AVCaptureDeviceInput       *deviceInput;
+@property (nonatomic, strong) AVCaptureMetadataOutput    *output;
+@property (nonatomic, strong) NSTimer                    *timer;
+@property (nonatomic, strong) UIImageView                *line;
 @end
 
 @implementation JNSacnTool
@@ -46,7 +49,7 @@
         _output = [[AVCaptureMetadataOutput alloc] init];
         [_output setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
         // 3.2.获取扫描容器的frame
-        CGRect containerRect = CGRectMake((kScreenWidth - 200)/2, (kScreenHeight-64- 200)/2, 200, 200);
+        CGRect containerRect = kScanEara;
         
         CGFloat x = containerRect.origin.y / kScreenHeight;
         CGFloat y = containerRect.origin.x / kScreenWidth;
@@ -62,9 +65,13 @@
     _session = [[AVCaptureSession alloc] init];
 
     //2.添加输入设备
-    [_session addInput:self.deviceInput];
+    // 1.判断输入能否添加到会话中
+    if (![_session canAddInput:self.deviceInput]) return nil;
+    [self.session addInput:self.deviceInput];
+    
 
     //3.添加输出数据
+    if (![_session canAddOutput:self.output]) return nil;
     [_session addOutput:self.output];
     
     // 3.1.设置输入元数据的类型(类型是二维码数据)
@@ -78,6 +85,10 @@
     
     // 5.开始扫描
     [_session startRunning];
+    
+    
+    //创建定时器
+    _timer = [NSTimer scheduledTimerWithTimeInterval:2 target:self selector:@selector(saomiaoAct) userInfo:nil repeats:YES];
     
     return _layer;
 }
@@ -143,6 +154,130 @@
     downView.backgroundColor = [UIColor blackColor];
     [bgView addSubview:downView];
     
+    
+    // 添加四个角
+    UIImageView *imageView = [[UIImageView alloc] init];
+    imageView.image = [UIImage imageNamed:@"qrcode_border"];
+    imageView.frame = kScanEara;
+    imageView.contentMode = UIViewContentModeScaleToFill;
+    [bgView addSubview:imageView];
+    
+    //扫描线条
+    _line = [[UIImageView alloc] init];
+    _line.image = [UIImage imageNamed:@"line"];
+    CGRect frame = kScanEara;
+    frame.size.height = 3;
+    _line.frame = frame;
+    [bgView addSubview:_line];
+    
     return bgView;
+}
+
+- (void)saomiaoAct
+{
+    
+    
+    [UIView animateWithDuration:2.0 animations:^{
+        CGRect frame = kScanEara;
+        frame.size.height = 3;
+        frame.origin.y += 197;
+        _line.frame = frame;
+    } completion:^(BOOL finished) {
+        CGRect frame = kScanEara;
+        frame.size.height = 3;
+        _line.frame = frame;
+    }];
+}
+
+
+
+//=============================
+/**
+ *  生成二维码图片
+ *
+ *  @param QRString  二维码内容
+ *  @param sizeWidth 图片size（正方形）
+ *
+ *  @return  二维码图片
+ */
++ (UIImage *)createQRimageString:(NSString *)QRString sizeWidth:(CGFloat)sizeWidth
+{
+    CIImage *ciimage = [self createQRForString:QRString];
+    UIImage *qrImage = [self createNonInterpolatedUIImageFormCIImage:ciimage withSize:sizeWidth];
+    return qrImage;
+}
+#pragma mark - QRCodeGenerator
++ (CIImage *)createQRForString:(NSString *)qrString {
+    // Need to convert the string to a UTF-8 encoded NSData object
+    NSData *stringData = [qrString dataUsingEncoding:NSUTF8StringEncoding];
+    //1.创建过滤器
+    CIFilter *qrFilter = [CIFilter filterWithName:@"CIQRCodeGenerator"];
+    //2.恢复默认设置
+    [qrFilter setDefaults];
+    //3.给过滤器添加数据
+    [qrFilter setValue:stringData forKey:@"inputMessage"];
+    //4.设置精确度
+    [qrFilter setValue:@"M" forKey:@"inputCorrectionLevel"];
+    // Send the image back
+    return qrFilter.outputImage;
+}
+
+/**
+ *  根据CIImage生成指定大小的高清UIImage
+ *
+ *  @param image CIImage
+ *  @param size  图片宽度
+ */
+#pragma mark - InterpolatedUIImage
++ (UIImage *)createNonInterpolatedUIImageFormCIImage:(CIImage *)image withSize:(CGFloat) size {
+    CGRect extent = CGRectIntegral(image.extent);
+    CGFloat scale = MIN(size/CGRectGetWidth(extent), size/CGRectGetHeight(extent));
+    // 1.创建bitmap;
+    size_t width = CGRectGetWidth(extent) * scale;
+    size_t height = CGRectGetHeight(extent) * scale;
+    CGColorSpaceRef cs = CGColorSpaceCreateDeviceGray();
+    CGContextRef bitmapRef = CGBitmapContextCreate(nil, width, height, 8, 0, cs, (CGBitmapInfo)kCGImageAlphaNone);
+    CIContext *context = [CIContext contextWithOptions:nil];
+    CGImageRef bitmapImage = [context createCGImage:image fromRect:extent];
+    CGContextSetInterpolationQuality(bitmapRef, kCGInterpolationNone);
+    CGContextScaleCTM(bitmapRef, scale, scale);
+    CGContextDrawImage(bitmapRef, extent, bitmapImage);
+    // 2.保存bitmap到图片
+    CGImageRef scaledImage = CGBitmapContextCreateImage(bitmapRef);
+    // Cleanup
+    CGContextRelease(bitmapRef);
+    CGImageRelease(bitmapImage);
+    return [UIImage imageWithCGImage:scaledImage];
+}
+
+
+
+
+#pragma mark 读取图片二维码
+/**
+ *  读取图片中二维码信息
+ *
+ *  @param image 图片
+ *
+ *  @return 二维码内容
+ */
++(NSString *)readQRCodeFromImage:(UIImage *)image{
+    NSData *data = UIImagePNGRepresentation(image);
+    CIImage *ciimage = [CIImage imageWithData:data];
+    if (ciimage) {
+        CIDetector *qrDetector = [CIDetector detectorOfType:CIDetectorTypeQRCode context:[CIContext contextWithOptions:@{kCIContextUseSoftwareRenderer:@(YES)}] options:@{CIDetectorAccuracy : CIDetectorAccuracyHigh}];
+        NSArray *resultArr = [qrDetector featuresInImage:ciimage];
+        if (resultArr.count >0) {
+            CIFeature *feature = resultArr[0];
+            CIQRCodeFeature *qrFeature = (CIQRCodeFeature *)feature;
+            NSString *result = qrFeature.messageString;
+            
+            return result;
+        }else{
+            return nil;
+        }
+    }else{
+        return nil;
+    }
 }
 @end

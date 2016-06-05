@@ -9,6 +9,7 @@
 #import "ScanQRController.h"
 #import "JNScanController.h"
 #import "UIView+Toast.h"
+#import "JNSacnTool.h"
 @interface ScanQRController ()<UIImagePickerControllerDelegate,UINavigationControllerDelegate>
 
 @end
@@ -43,32 +44,19 @@
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info
 {
 
-    NSString *content = @"" ;
     //取出选中的图片
     UIImage *pickImage = info[UIImagePickerControllerOriginalImage];
-    NSData *imageData = UIImagePNGRepresentation(pickImage);
-    CIImage *ciImage = [CIImage imageWithData:imageData];
-    
-    //创建探测器
-    CIDetector *detector = [CIDetector detectorOfType:CIDetectorTypeQRCode context:nil options:@{CIDetectorAccuracy: CIDetectorAccuracyLow}];
-    NSArray *feature = [detector featuresInImage:ciImage];
-    
-    //取出探测到的数据
-    for (CIQRCodeFeature *result in feature) {
-        content = result.messageString;
-    }
+
+
     __weak typeof(self) weakSelf = self;
+    
+    
     //选中图片后先返回扫描页面，然后跳转到新页面进行展示
     [picker dismissViewControllerAnimated:NO completion:^{
-        
-        if (![content isEqualToString:@""]) {
+    
             
-            [weakSelf.view makeToast:content];
-            
-            
-        }else{
-            NSLog(@"没扫到东西");
-        }
+    [weakSelf.view makeToast:[JNSacnTool readQRCodeFromImage:pickImage]];
+
     }];
 }
 
