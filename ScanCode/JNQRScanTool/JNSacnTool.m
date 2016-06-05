@@ -280,4 +280,11 @@
         return nil;
     }
 }
+
+
+- (void)dealloc
+{
+    [_timer invalidate];
+    [_session stopRunning];
+}
 @end

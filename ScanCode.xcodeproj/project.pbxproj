@@ -14,7 +14,6 @@
 		1D6A30561D02BD0300B7E6F0 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1D6A30541D02BD0300B7E6F0 /* LaunchScreen.storyboard */; };
 		1D6A305F1D02C0FE00B7E6F0 /* CreatrQRController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D6A305E1D02C0FE00B7E6F0 /* CreatrQRController.m */; };
 		1D6A30621D02C11000B7E6F0 /* ScanQRController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D6A30611D02C11000B7E6F0 /* ScanQRController.m */; };
-		1D76DD781D0411D80059D5DE /* JNQRScanTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D76DD771D0411D80059D5DE /* JNQRScanTool.m */; };
 		1D76DD7C1D0418EA0059D5DE /* JNScanController.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D76DD7B1D0418EA0059D5DE /* JNScanController.m */; };
 		1D76DD7F1D0419DF0059D5DE /* JNSacnTool.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D76DD7E1D0419DF0059D5DE /* JNSacnTool.m */; };
 		1D76DD8A1D042AEE0059D5DE /* UIView+Toast.m in Sources */ = {isa = PBXBuildFile; fileRef = 1D76DD891D042AEE0059D5DE /* UIView+Toast.m */; };
@@ -34,8 +33,6 @@
 		1D6A305E1D02C0FE00B7E6F0 /* CreatrQRController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CreatrQRController.m; sourceTree = "<group>"; };
 		1D6A30601D02C11000B7E6F0 /* ScanQRController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ScanQRController.h; sourceTree = "<group>"; };
 		1D6A30611D02C11000B7E6F0 /* ScanQRController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ScanQRController.m; sourceTree = "<group>"; };
-		1D76DD761D0411D80059D5DE /* JNQRScanTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JNQRScanTool.h; sourceTree = "<group>"; };
-		1D76DD771D0411D80059D5DE /* JNQRScanTool.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JNQRScanTool.m; sourceTree = "<group>"; };
 		1D76DD7A1D0418EA0059D5DE /* JNScanController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JNScanController.h; sourceTree = "<group>"; };
 		1D76DD7B1D0418EA0059D5DE /* JNScanController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JNScanController.m; sourceTree = "<group>"; };
 		1D76DD7D1D0419DF0059D5DE /* JNSacnTool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JNSacnTool.h; sourceTree = "<group>"; };
@@ -107,8 +104,6 @@
 		1D76DD711D040F540059D5DE /* JNQRScanTool */ = {
 			isa = PBXGroup;
 			children = (
-				1D76DD761D0411D80059D5DE /* JNQRScanTool.h */,
-				1D76DD771D0411D80059D5DE /* JNQRScanTool.m */,
 				1D76DD7D1D0419DF0059D5DE /* JNSacnTool.h */,
 				1D76DD7E1D0419DF0059D5DE /* JNSacnTool.m */,
 			);
@@ -206,7 +201,6 @@
 				1D76DD8A1D042AEE0059D5DE /* UIView+Toast.m in Sources */,
 				1D76DD7F1D0419DF0059D5DE /* JNSacnTool.m in Sources */,
 				1D6A304B1D02BD0300B7E6F0 /* AppDelegate.m in Sources */,
-				1D76DD781D0411D80059D5DE /* JNQRScanTool.m in Sources */,
 				1D76DD7C1D0418EA0059D5DE /* JNScanController.m in Sources */,
 				1D6A30621D02C11000B7E6F0 /* ScanQRController.m in Sources */,
 				1D76DD8D1D042F4C0059D5DE /* UINavigationBar+Alpha.m in Sources */,

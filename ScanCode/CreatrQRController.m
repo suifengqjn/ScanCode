@@ -8,7 +8,7 @@
 
 #import "CreatrQRController.h"
 
-#import "JNQRScanTool.h"
+#import "JNSacnTool.h"
 #define kScreenHeight ([UIScreen mainScreen].bounds.size.height)
 #define kScreenWidth ([UIScreen mainScreen].bounds.size.width)
 @interface CreatrQRController ()
@@ -32,7 +32,7 @@
 
 - (IBAction)clickAction:(id)sender {
     if (_twxtfeild.text) {
-        self.imageView.image  = [JNQRScanTool createQRimageString:_twxtfeild.text sizeWidth:200];
+        self.imageView.image  = [JNSacnTool createQRimageString:_twxtfeild.text sizeWidth:200];
     }
     
     
