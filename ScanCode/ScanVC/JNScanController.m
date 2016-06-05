@@ -10,6 +10,7 @@
 #import "JNSacnTool.h"
 #import "UIView+Toast.h"
 #import "UINavigationBar+Alpha.h"
+
 @interface JNScanController ()<JNSacnToolDelegate>
 @property (nonatomic, strong)JNSacnTool *scanTool;
 

@@ -15,51 +15,61 @@
 @property (nonatomic, strong) AVCaptureSession *session;
 @property (nonatomic, strong) AVCaptureVideoPreviewLayer *layer;
 
-
+@property (nonatomic, strong) AVCaptureDeviceInput *deviceInput;
+@property (nonatomic, strong) AVCaptureMetadataOutput *output;
 @end
 
 @implementation JNSacnTool
 
-
+- (AVCaptureDeviceInput *)deviceInput
+{
+    if (!_deviceInput) {
+        AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo]; //二维码类型
+        NSError *error;
+        _deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
+        NSLog(@"--%@", error);
+        if (self.delegate && [self.delegate respondsToSelector:@selector(scanFailure:)]) {
+            [self.delegate scanFailure:[error.userInfo description]];
+        }
+    }
+    return _deviceInput;
+}
 
 // 设置输出对象解析数据时感兴趣的范围
 // 默认值是 CGRect(x: 0, y: 0, width: 1, height: 1)
 // 通过对这个值的观察, 我们发现传入的是比例
 // 注意: 参照是以横屏的左上角作为, 而不是以竖屏
 //        out.rectOfInterest = CGRect(x: 0, y: 0, width: 0.5, height: 0.5)
+- (AVCaptureMetadataOutput *)output
+{
+    if (!_output) {
+        _output = [[AVCaptureMetadataOutput alloc] init];
+        [_output setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
+        // 3.2.获取扫描容器的frame
+        CGRect containerRect = CGRectMake((kScreenWidth - 200)/2, (kScreenHeight-64- 200)/2, 200, 200);
+        
+        CGFloat x = containerRect.origin.y / kScreenHeight;
+        CGFloat y = containerRect.origin.x / kScreenWidth;
+        CGFloat width = containerRect.size.height / kScreenHeight;
+        CGFloat height = containerRect.size.width / kScreenWidth;
+        _output.rectOfInterest = CGRectMake(x, y, width, height);
+    }
+    return _output;
+}
 - (AVCaptureVideoPreviewLayer *)startScan;
 {
     //1.创建捕捉会话
     _session = [[AVCaptureSession alloc] init];
 
     //2.添加输入设备
-    AVCaptureDevice *device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo]; //二维码类型
-    NSError *error;
-    AVCaptureDeviceInput *deviceInput = [AVCaptureDeviceInput deviceInputWithDevice:device error:&error];
-    NSLog(@"--%@", error);
-    if (self.delegate && [self.delegate respondsToSelector:@selector(scanFailure:)]) {
-        [self.delegate scanFailure:[error.userInfo description]];
-    }
-    [_session addInput:deviceInput];
+    [_session addInput:self.deviceInput];
+
     //3.添加输出数据
-    AVCaptureMetadataOutput *output = [[AVCaptureMetadataOutput alloc] init];
-    [output setMetadataObjectsDelegate:self queue:dispatch_get_main_queue()];
-    [_session addOutput:output];
+    [_session addOutput:self.output];
     
     // 3.1.设置输入元数据的类型(类型是二维码数据)
-    [output setMetadataObjectTypes:@[AVMetadataObjectTypeQRCode]];
-    
-    // 3.2.获取扫描容器的frame
-    CGRect containerRect = CGRectMake((kScreenWidth - 200)/2, (kScreenHeight-64- 200)/2, 200, 200);
-    
-    CGFloat x = containerRect.origin.y / kScreenHeight;
-    CGFloat y = containerRect.origin.x / kScreenWidth;
-    CGFloat width = containerRect.size.height / kScreenHeight;
-    CGFloat height = containerRect.size.width / kScreenWidth;
-    output.rectOfInterest = CGRectMake(x, y, width, height);
-    
-    
-    
+    //扫码类型，需要先将输出流添加到捕捉会话后再进行设置
+    [_output setMetadataObjectTypes:@[AVMetadataObjectTypeQRCode]];
     
     // 4.添加扫描图层
     _layer = [AVCaptureVideoPreviewLayer layerWithSession:_session];
@@ -87,7 +97,7 @@
         }
         
         // 将预览图层移除
-        [self.layer removeFromSuperlayer];
+        //[self.layer removeFromSuperlayer];
     } else {
         NSLog(@"没有扫描到数据");
         if (self.delegate && [self.delegate respondsToSelector:@selector(scanFailure:)]) {
