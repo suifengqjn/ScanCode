@@ -27,9 +27,6 @@
 }
 
 
-
-
-
 - (IBAction)clickAction:(id)sender {
     if (_twxtfeild.text) {
         self.imageView.image  = [JNSacnTool createQRimageString:_twxtfeild.text sizeWidth:200];
@@ -40,7 +37,10 @@
 
 
 
-
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event
+{
+    [self.view endEditing:YES];
+}
 
 
 @end
